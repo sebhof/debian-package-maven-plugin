@@ -1,0 +1,3 @@
+#!/bin/sh
+
+/usr/lib/jvm/default-java/bin/java -jar /usr/share/${deb.package.name}/${deb.package.name}-${deb.package.version}.jar

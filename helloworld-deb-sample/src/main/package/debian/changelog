@@ -1,0 +1,5 @@
+${deb.package.name} (${deb.package.version}) ${deb.distribution}; urgency=low
+
+  * Initial Release.
+
+ -- shofmann <shofmann@unknown>  Sun, 25 Jan 2015 15:02:13 +0100

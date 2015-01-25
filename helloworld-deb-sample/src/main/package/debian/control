@@ -1,0 +1,15 @@
+Source: ${deb.package.name}
+Section: ${deb.package.section}
+Priority: ${deb.package.priority}
+Maintainer: shofmann <shofmann@unknown>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.4
+Homepage: <insert the upstream URL, if relevant>
+#Vcs-Git: git://git.debian.org/collab-maint/helloworld-deb-sample.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/helloworld-deb-sample.git;a=summary
+
+Package: ${deb.package.name}
+Architecture: ${deb.package.architecture}
+Depends: ${shlibs:Depends}, ${misc:Depends}, java7-runtime
+Description: Sample for usage of debian-package-maven-plugin
+ Sample for usage of debian-package-maven-plugin

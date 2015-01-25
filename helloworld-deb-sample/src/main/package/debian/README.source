@@ -1,0 +1,10 @@
+helloworld-deb-sample for Debian
+--------------------------------
+
+<this file describes information about the source package, see Debian policy
+manual section 4.14. You WILL either need to modify or delete this file>
+
+
+
+ -- shofmann <shofmann@unknown>  Sun, 25 Jan 2015 15:02:13 +0100
+

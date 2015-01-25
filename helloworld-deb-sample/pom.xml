@@ -13,12 +13,21 @@
     <packaging>jar</packaging>
     
     <properties>
+        <deb.distribution>unstable</deb.distribution>
+        <deb.package.architecture>all</deb.package.architecture>
+        <deb.package.name>${project.artifactId}</deb.package.name>
+        <deb.package.version>${project.version}-${buildNumber}</deb.package.version>
+        <deb.package.section>web</deb.package.section>
+        <deb.package.priority>optional</deb.package.priority>
+        <deb.working.directory>${project.build.directory}/${project.artifactId}-${project.version}-deb</deb.working.directory>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
     
-    <build>
+    <build>                
+        
         <plugins>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -32,6 +41,84 @@
                     </archive>
                 </configuration>        
             </plugin>
+            
+            <plugin>
+                <groupId>de.shofmann.maven</groupId>
+                <artifactId>debian-package-maven-plugin</artifactId>
+                <version>1.0-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <id>package</id>
+                        <goals>
+                            <goal>debian-package</goal>
+                        </goals>                                       
+                        <configuration>
+                            <workingDirectory>${deb.working.directory}</workingDirectory>
+                            <packageName>${deb.package.name}</packageName>
+                            <packageVersion>${deb.package.version}</packageVersion>
+                            <packageArchitecture>${deb.architecture}</packageArchitecture>
+                            <packageDistribution>${deb.distribution}</packageDistribution>
+                            <packageSection>${deb.package.section}</packageSection>
+                            <packagePriority>${deb.package.priority}</packagePriority>
+                            <packageArchitecture>${deb.package.architecture}</packageArchitecture>
+                            <packagePriority>${deb.package.priority}</packagePriority>
+                            <packageSection>${deb.package.section}</packageSection>
+                            <!--dpkgBuildPackageExecutable>/some/other/location/dpkg-buildpackage</dpkgBuildPackageExecutable-->
+                        </configuration>
+                    </execution> 
+                </executions>                
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.7</version>	
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <nonFilteredFileExtensions>
+                                <nonFilteredFileExtension>gpg</nonFilteredFileExtension>
+                            </nonFilteredFileExtensions>
+                            <outputDirectory>${deb.working.directory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/package</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.0-beta-3</version>
+                <inherited>true</inherited>
+                <configuration>
+                    <format>{0,date,yyyyMMddHHmmss}</format>
+                    <items>
+                        <item>timestamp</item>
+                    </items>
+                    <doCheck>false</doCheck>
+                    <doUpdate>false</doUpdate>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
         </plugins>
     </build>
     

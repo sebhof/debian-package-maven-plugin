@@ -18,10 +18,16 @@
  */
 package de.shofmann.maven.debian;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -73,10 +79,10 @@ public class DebianPackageMojo extends AbstractMojo {
 
     @Parameter(property = "dpkgBuildPackageExecutable", defaultValue = "/usr/bin/dpkg-buildpackage", required = true)
     private File dpkgBuildPackageExecutable;
-    
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        super.getLog().info("DebianPackageMojo starting execution...");       
+        super.getLog().info("DebianPackageMojo starting execution...");
 
         if (super.getLog().isDebugEnabled()) {
             super.getLog().debug("workingDirectory: " + workingDirectory);
@@ -88,31 +94,103 @@ public class DebianPackageMojo extends AbstractMojo {
             super.getLog().debug("packagePriority: " + packagePriority);
             super.getLog().debug("workingDirectory: " + workingDirectory);
         }
-        
+
         if (!dpkgBuildPackageExecutable.exists() && !dpkgBuildPackageExecutable.canExecute()) {
             throw new MojoExecutionException(String.format("dpkg-buildpackage excutable not found at %s or unable to execute.", dpkgBuildPackageExecutable));
         }
-        
-        if(!workingDirectory.exists()) {
-            if(!workingDirectory.mkdirs()) {
+
+        if (!workingDirectory.exists()) {
+            if (!workingDirectory.mkdirs()) {
                 throw new MojoExecutionException(String.format("Unable to create non existing working directory: %s", workingDirectory));
             }
         }
-        
+
         List<String> dpkgBuildPackageCommand = new ArrayList<String>(Arrays.asList(dpkgBuildPackageExecutable.getAbsolutePath(), "-uc", "-us", "-r"));
-        
-        if(!packageArchitecture.equalsIgnoreCase("ALL")) {
-            dpkgBuildPackageCommand.add("-a "+packageArchitecture);
+
+        if (!packageArchitecture.equalsIgnoreCase("ALL")) {
+            dpkgBuildPackageCommand.add("-a " + packageArchitecture);
         }
-        
-        super.getLog().info(dpkgBuildPackageCommand.toString());
-        
+
+        super.getLog().info(String.format("Excuting command %s", dpkgBuildPackageCommand.toString()));
+
         ProcessBuilder pb = new ProcessBuilder(dpkgBuildPackageCommand);
         pb.directory(workingDirectory);
-                
+
+        Process p;
+        try {
+            p = pb.start();
+        } catch (IOException ex) {
+            throw new MojoExecutionException(String.format("Error executing command %s", dpkgBuildPackageCommand.toString()), ex);
+        }
+
+        StreamHandlerThread stdout = new StreamHandlerThread(p.getInputStream(), LogLevel.INFO);
+        StreamHandlerThread stderr = new StreamHandlerThread((p.getErrorStream()), LogLevel.ERROR);
+        stdout.start();
+        stderr.start();
+
+        int retcode = 1;
+        try {
+            retcode = p.waitFor();
+        } catch (InterruptedException ex) {
+            //nothing to do here
+        }
+        stdout.stopThread();
+        stderr.stopThread();
+        if (retcode == 0) {
+            super.getLog().info("DebianPackageMojo executed successfully.");
+        } else {
+            throw new MojoExecutionException("dpkg-buildpackage Unexpected process return code :" + retcode);
+        }
         
-        
-        super.getLog().info("DebianPackageMojo executed successfully.");
+    }
+
+    /**
+     * Thread handling reading the input streams
+     */
+    private class StreamHandlerThread extends Thread {
+
+        private boolean isActive = false;
+
+        private InputStream inputStream;
+
+        private LogLevel logLevel;
+
+        public StreamHandlerThread(InputStream inputStream, LogLevel logLevel) {
+            this.inputStream = inputStream;
+            this.logLevel = logLevel;
+        }
+
+        @Override
+        public void run() {
+
+            isActive = true;
+            String line = null;
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+
+            try {
+                while ((line = br.readLine()) != null && isActive) {
+                    if (logLevel.equals(LogLevel.INFO)) {
+                        getLog().info(line);
+                    } else {
+                        getLog().error(line);
+                    }
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Error reading stream", e);
+            }
+
+        }
+
+        public void stopThread() {
+            isActive = false;
+        }
+
+    }
+
+    private enum LogLevel {
+
+        INFO,
+        ERROR
     }
 
 }
