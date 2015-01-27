@@ -13,13 +13,13 @@
     <packaging>jar</packaging>
     
     <properties>
-        <deb.distribution>unstable</deb.distribution>
+        <deb.package.distribution>unstable</deb.package.distribution>
         <deb.package.architecture>all</deb.package.architecture>
         <deb.package.name>${project.artifactId}</deb.package.name>
         <deb.package.version>${project.version}-${buildNumber}</deb.package.version>
         <deb.package.section>web</deb.package.section>
         <deb.package.priority>optional</deb.package.priority>
-        <deb.working.directory>${project.build.directory}/${project.artifactId}-${project.version}-deb</deb.working.directory>
+        <deb.package.working.directory>${project.build.directory}/${project.artifactId}-${project.version}-deb</deb.package.working.directory>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
@@ -53,16 +53,13 @@
                             <goal>debian-package</goal>
                         </goals>                                       
                         <configuration>
-                            <workingDirectory>${deb.working.directory}</workingDirectory>
+                            <workingDirectory>${deb.package.working.directory}</workingDirectory>
                             <packageName>${deb.package.name}</packageName>
                             <packageVersion>${deb.package.version}</packageVersion>
-                            <packageArchitecture>${deb.architecture}</packageArchitecture>
-                            <packageDistribution>${deb.distribution}</packageDistribution>
-                            <packageSection>${deb.package.section}</packageSection>
-                            <packagePriority>${deb.package.priority}</packagePriority>
                             <packageArchitecture>${deb.package.architecture}</packageArchitecture>
-                            <packagePriority>${deb.package.priority}</packagePriority>
+                            <packageDistribution>${deb.package.distribution}}</packageDistribution>
                             <packageSection>${deb.package.section}</packageSection>
+                            <packagePriority>${deb.package.priority}</packagePriority>
                             <!--dpkgBuildPackageExecutable>/some/other/location/dpkg-buildpackage</dpkgBuildPackageExecutable-->
                         </configuration>
                     </execution> 
@@ -81,10 +78,7 @@
                         </goals>
                         <phase>process-resources</phase>
                         <configuration>
-                            <nonFilteredFileExtensions>
-                                <nonFilteredFileExtension>gpg</nonFilteredFileExtension>
-                            </nonFilteredFileExtensions>
-                            <outputDirectory>${deb.working.directory}</outputDirectory>
+                            <outputDirectory>${deb.package.working.directory}</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>src/main/package</directory>

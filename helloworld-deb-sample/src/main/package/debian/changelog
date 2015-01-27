@@ -1,4 +1,4 @@
-${deb.package.name} (${deb.package.version}) ${deb.distribution}; urgency=low
+${deb.package.name} (${deb.package.version}) ${deb.package.distribution}; urgency=low
 
   * Initial Release.
 

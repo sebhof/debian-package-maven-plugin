@@ -26,8 +26,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -48,14 +46,6 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 )
 public class DebianPackageMojo extends AbstractMojo {
 
-    @Parameter(defaultValue = "${project.basedir}", readonly = true)
-    private File baseDir;
-
-    @Parameter(defaultValue = "${project.build.directory}", readonly = true)
-    private File targetDir;
-
-//    @Parameter(defaultValue = "${project}", readonly = true, required = true)
-//    private MavenProject project;
     @Parameter(property = "workingDirectory", required = true)
     private File workingDirectory;
 
@@ -82,6 +72,7 @@ public class DebianPackageMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        
         super.getLog().info("DebianPackageMojo starting execution...");
 
         if (super.getLog().isDebugEnabled()) {
@@ -96,7 +87,7 @@ public class DebianPackageMojo extends AbstractMojo {
         }
 
         if (!dpkgBuildPackageExecutable.exists() && !dpkgBuildPackageExecutable.canExecute()) {
-            throw new MojoExecutionException(String.format("dpkg-buildpackage excutable not found at %s or unable to execute.", dpkgBuildPackageExecutable));
+            throw new MojoExecutionException(String.format("dpkg-buildpackage executable not found at %s or unable to execute.", dpkgBuildPackageExecutable));
         }
 
         if (!workingDirectory.exists()) {
@@ -145,11 +136,11 @@ public class DebianPackageMojo extends AbstractMojo {
     }
 
     /**
-     * Thread handling reading the input streams
+     * Thread for reading the input streams
      */
     private class StreamHandlerThread extends Thread {
 
-        private boolean isActive = false;
+        private boolean isRunning = false;
 
         private InputStream inputStream;
 
@@ -163,12 +154,12 @@ public class DebianPackageMojo extends AbstractMojo {
         @Override
         public void run() {
 
-            isActive = true;
+            isRunning = true;
             String line = null;
             BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 
             try {
-                while ((line = br.readLine()) != null && isActive) {
+                while ((line = br.readLine()) != null && isRunning) {
                     if (logLevel.equals(LogLevel.INFO)) {
                         getLog().info(line);
                     } else {
@@ -182,13 +173,15 @@ public class DebianPackageMojo extends AbstractMojo {
         }
 
         public void stopThread() {
-            isActive = false;
+            isRunning = false;
         }
 
     }
 
+    /**
+     * Enum defining the loglevels
+     */
     private enum LogLevel {
-
         INFO,
         ERROR
     }

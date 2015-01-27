@@ -18,6 +18,7 @@
     
     <developers>
         <developer>
+            <id>shofmann</id>
             <name>Sebastian Hofmann</name>
             <email>sebhof@web.de</email>
         </developer>
@@ -71,24 +72,6 @@
             <version>3.2</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-project</artifactId>
-            <version>3.0-alpha-2</version>
-            <scope>provided</scope>
-        </dependency>
-        <!--dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-artifact</artifactId>
-            <version>3.2.5</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-artifact-manager</artifactId>
-            <version>2.2.1</version>
-            <scope>provided</scope>
-        </dependency-->
     </dependencies>
     
 </project>

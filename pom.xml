@@ -25,8 +25,11 @@
         A Maven Plugin for Building Debian Packages
     </description>
     
+    <url>https://github.com/sebhof/debian-package-maven-plugin</url>
+    
     <developers>
         <developer>
+            <id>shofmann</id>
             <name>Sebastian Hofmann</name>
             <email>sebhof@web.de</email>
         </developer>
